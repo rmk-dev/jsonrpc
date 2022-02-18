@@ -41,6 +41,7 @@ abstract class Response implements JsonSerializable, JsonRpcMessageInterface
         $response = $this->respond();
         $response['id'] = $this->getId();
         $response['jsonrpc'] = '2.0';
+
         return $response;
     }
 }

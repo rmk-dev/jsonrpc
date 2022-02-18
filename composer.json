@@ -11,7 +11,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Rmk\\Jsonrpc\\": "src/"
+            "Rmk\\JsonRpc\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "RmkTests\\JsonRpc\\": "tests/"
         }
     },
     "authors": [
