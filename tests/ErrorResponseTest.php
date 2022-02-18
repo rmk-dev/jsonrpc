@@ -4,6 +4,7 @@ namespace RmkTests\JsonRpc;
 
 use PHPUnit\Framework\TestCase;
 use Rmk\JsonRpc\ErrorResponse;
+use Rmk\JsonRpc\JsonRpc;
 use Rmk\JsonRpc\JsonRpcException;
 
 class ErrorResponseTest extends TestCase
@@ -32,7 +33,7 @@ class ErrorResponseTest extends TestCase
         ];
         $response = new ErrorResponse(3, $errorData['code'], $errorData['message'], $errorData['data']);
         $this->assertEquals(['error' => $errorData], $response->respond());
-        $serialized = ['error' => $errorData, 'id' => 3, 'jsonrpc' => '2.0'];
+        $serialized = ['error' => $errorData, 'id' => 3, 'jsonrpc' => JsonRpc::VERSION];
         $this->assertEquals(json_encode($serialized), json_encode($response));
     }
 }
