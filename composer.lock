@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ef975e06d4476259bc5999f985d048fd",
+    "content-hash": "913222b00d93e7f396c0ee1256036077",
     "packages": [
         {
             "name": "psr/container",
@@ -94,6 +94,43 @@
                 "source": "https://github.com/rmk-dev/callback-resolver/tree/v1.1.1"
             },
             "time": "2022-01-23T14:33:27+00:00"
+        },
+        {
+            "name": "rmk/collections",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/rmk-dev/collections.git",
+                "reference": "8925a1c9a76947aa73201be8cf9564f3729d3adb"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/rmk-dev/collections/zipball/8925a1c9a76947aa73201be8cf9564f3729d3adb",
+                "reference": "8925a1c9a76947aa73201be8cf9564f3729d3adb",
+                "shasum": ""
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Rmk\\Collections\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "authors": [
+                {
+                    "name": "Kiril Savchev",
+                    "email": "k.savchev@gmail.com"
+                }
+            ],
+            "description": "Helper classes for dealing with collections",
+            "support": {
+                "issues": "https://github.com/rmk-dev/collections/issues",
+                "source": "https://github.com/rmk-dev/collections/tree/v1.0.0"
+            },
+            "time": "2022-02-18T10:28:10+00:00"
         }
     ],
     "packages-dev": [
@@ -2196,7 +2233,9 @@
     "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
-    "platform": [],
+    "platform": {
+        "php": "^7.4 || ^8.0"
+    },
     "platform-dev": [],
     "plugin-api-version": "2.2.0"
 }
