@@ -38,7 +38,7 @@ class JsonRpc
      *
      * @return Response
      */
-    public function execute(Request $request)
+    public function execute(Request $request): Response
     {
         $method = $request->getMethod();
         $args = $request->getParams();
