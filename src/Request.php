@@ -113,7 +113,7 @@ class Request implements JsonRpcMessageInterface
         } elseif (str_contains($body->method, 'rpc')) {
             $return = new ErrorResponse($id, JsonRpcException::INVALID_REQUEST, 'Invalid request method');
         } else {
-            $return = new Request(JsonRpc::VERSION, $id, $body->method, (array) $body->params ?? []);
+            $return = new Request(JsonRpc::VERSION, $id, $body->method, (array) ($body->params ?? []));
         }
 
         return $return;

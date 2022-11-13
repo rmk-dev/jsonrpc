@@ -5,27 +5,37 @@ namespace Rmk\JsonRpc;
 use Closure;
 use ReflectionException;
 use ReflectionFunction;
+use ReflectionParameter;
 use Throwable;
 use Rmk\CallbackResolver\CallbackResolver;
 use Rmk\Collections\Collection;
 
 class JsonRpc
 {
+    /**
+     * The current supported version
+     */
     public const VERSION = '2.0';
 
     /**
+     * Collection of callbacks that can be remotely executed
+     *
      * @var Collection
      */
     protected Collection $callbacks;
 
     /**
+     * Resolver for the procedure
+     *
      * @var CallbackResolver
      */
     protected CallbackResolver $resolver;
 
     /**
-     * @param Collection $callbacks
-     * @param CallbackResolver $resolver
+     * Create new JSON-RPC service object
+     *
+     * @param Collection       $callbacks Collection with callbacks
+     * @param CallbackResolver $resolver  Callback resolver
      */
     public function __construct(Collection $callbacks, CallbackResolver $resolver)
     {
@@ -34,9 +44,11 @@ class JsonRpc
     }
 
     /**
-     * @param Request $request
+     * Executes the remote-called procedure with all the request parameters
      *
-     * @return Response
+     * @param Request $request The JSON-RPC request
+     *
+     * @return Response Response with the procedure result.
      */
     public function execute(Request $request): Response
     {
@@ -67,13 +79,15 @@ class JsonRpc
     }
 
     /**
-     * @param callable $callback
-     * @param array $args
+     * Define parameters for the called procedure
      *
-     * @return array
+     * @param callable $callback The called procedure
+     * @param array    $args     The parameters, send with the request
      *
-     * @throws JsonRpcException
-     * @throws ReflectionException
+     * @return array Parameters for the callback, ordered with their names and values
+     *
+     * @throws JsonRpcException    If no value is sent and no default value present in the callback definition.
+     * @throws ReflectionException If the procedure is not a valid callback
      */
     protected function defineParams(callable $callback, array $args): array
     {
@@ -87,14 +101,16 @@ class JsonRpc
     }
 
     /**
-     * @param array $args
-     * @param \ReflectionParameter $parameter
+     * Define value for a single parameter
      *
-     * @return mixed
+     * @param array                $args     Parameters sent with the request
+     * @param ReflectionParameter $parameter Reflection object for the current parameter
      *
-     * @throws JsonRpcException
+     * @return mixed The parameter's value, extracted from the request parameters
+     *
+     * @throws JsonRpcException If no value is sent and no default value present in the callback definition.
      */
-    protected function getParam(array $args, \ReflectionParameter $parameter): mixed
+    protected function getParam(array $args, ReflectionParameter $parameter): mixed
     {
         if (array_key_exists($parameter->getName(), $args)) {
             return $args[$parameter->getName()];
