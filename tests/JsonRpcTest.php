@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Rmk\CallbackResolver\CallbackResolver;
 use Rmk\Collections\Collection;
+use Rmk\JsonRpc\BatchRequest;
 use Rmk\JsonRpc\ErrorResponse;
 use Rmk\JsonRpc\JsonRpc;
 use Rmk\JsonRpc\JsonRpcException;
@@ -88,9 +89,25 @@ class JsonRpcTest extends TestCase
     {
         $request = new Request(JsonRpc::VERSION, null, 'without_params', []);
         $response = $this->jsonRpc->execute($request);
-        $this->assertNotInstanceOf(SuccessResponse::class, $response);
-        $this->assertNotInstanceOf(ErrorResponse::class, $response);
         $this->assertInstanceOf(NotificationResponse::class, $response);
         $this->assertEmpty($response->jsonSerialize());
+    }
+
+    public function testBatchRequest(): void
+    {
+        $requests = new BatchRequest([
+            new Request(JsonRpc::VERSION, 1, 'without_params', []),
+            new Request(JsonRpc::VERSION, null, 'single_param', [123]),
+            new Request(JsonRpc::VERSION, 5, 'with_exception', []),
+            new Request(JsonRpc::VERSION, 3, 'two_typed_params', ['b' => 'bb', 'a' => 'aa']),
+            new Request(JsonRpc::VERSION, 4, 'with_default_param', ['a' => 'aa']),
+        ]);
+        $response = $this->jsonRpc->executeBatch($requests);
+        $this->assertCount(5, $requests);
+        $this->assertInstanceOf(NotificationResponse::class, $response->get(1));
+        $this->assertInstanceOf(ErrorResponse::class, $response->get(2));
+        $decoded = $response->jsonSerialize();
+        $this->assertIsArray($decoded);
+        $this->assertCount(4, $decoded);
     }
 }

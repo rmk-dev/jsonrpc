@@ -10,6 +10,9 @@ use Throwable;
 use Rmk\CallbackResolver\CallbackResolver;
 use Rmk\Collections\Collection;
 
+/**
+ * Service for execution JSON-RPC requests
+ */
 class JsonRpc
 {
     /**
@@ -76,6 +79,23 @@ class JsonRpc
 
             return new ErrorResponse($request->getId(), $code, $exception->getMessage(), $exception->getTrace());
         }
+    }
+
+    /**
+     * Execute a batch request
+     *
+     * @param BatchRequest $batchRequest Collection with requests for execution
+     *
+     * @return BatchResponse Collection with responses for every request
+     */
+    public function executeBatch(BatchRequest $batchRequest): BatchResponse
+    {
+        $response = new BatchResponse();
+        foreach ($batchRequest as $request) {
+            $response->append($this->execute($request));
+        }
+
+        return $response;
     }
 
     /**
