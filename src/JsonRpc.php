@@ -42,6 +42,7 @@ class JsonRpc
     {
         $method = $request->getMethod();
         $args = $request->getParams();
+        $id = $request->getId();
         try {
             if (!$this->callbacks->has($method)) {
                 throw new JsonRpcException(
@@ -53,7 +54,11 @@ class JsonRpc
             $callback = $this->resolver->resolve($this->callbacks->get($method));
             $result = call_user_func_array($callback, $this->defineParams($callback, $args));
 
-            return new SuccessResponse($request->getId(), $result);
+            if ($id !== null) {
+                return new SuccessResponse($id, $result);
+            }
+
+            return new NotificationResponse();
         } catch (Throwable $exception) {
             $code = $exception instanceof JsonRpcException ? $exception->getCode() : JsonRpcException::INTERNAL_ERROR;
 
@@ -89,7 +94,7 @@ class JsonRpc
      *
      * @throws JsonRpcException
      */
-    protected function getParam(array $args, \ReflectionParameter $parameter)
+    protected function getParam(array $args, \ReflectionParameter $parameter): mixed
     {
         if (array_key_exists($parameter->getName(), $args)) {
             return $args[$parameter->getName()];
