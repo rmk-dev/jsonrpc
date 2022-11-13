@@ -2,7 +2,7 @@
     "name": "rmk/jsonrpc",
     "description": "JSON-RPC implementation",
     "require": {
-        "php": "^7.4 || ^8.0",
+        "php": "^8.0",
         "rmk/callback-resolver": "^1.1",
         "rmk/collections": "^1.0"
     },

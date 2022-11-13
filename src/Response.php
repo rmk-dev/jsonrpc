@@ -36,7 +36,7 @@ abstract class Response implements JsonSerializable, JsonRpcMessageInterface
     /**
      * @return array
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         $response = $this->respond();
         $response['id'] = $this->getId();
