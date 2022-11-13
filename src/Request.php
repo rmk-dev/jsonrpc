@@ -44,9 +44,9 @@ class Request implements JsonRpcMessageInterface
      * Create new JSON-RPC request object
      *
      * @param string $jsonRpc The JSON-RPC version
-     * @param mixed  $id The request id
-     * @param string $method The procedure's name
-     * @param array  $params THe procedure's parameters
+     * @param mixed  $id      The request id
+     * @param string $method  The procedure's name
+     * @param array  $params  The procedure's parameters
      */
     public function __construct(string $jsonRpc, mixed $id, string $method, array $params)
     {
@@ -77,7 +77,7 @@ class Request implements JsonRpcMessageInterface
     }
 
     /**
-     * The procdefure's name
+     * The procedure's name
      *
      * @return string
      */
