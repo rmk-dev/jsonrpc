@@ -9,6 +9,7 @@ use Rmk\Collections\Collection;
 use Rmk\JsonRpc\ErrorResponse;
 use Rmk\JsonRpc\JsonRpc;
 use Rmk\JsonRpc\JsonRpcException;
+use Rmk\JsonRpc\NotificationResponse;
 use Rmk\JsonRpc\Request;
 use Rmk\JsonRpc\SuccessResponse;
 
@@ -81,5 +82,15 @@ class JsonRpcTest extends TestCase
         $response = $this->jsonRpc->execute($request);
         $this->assertInstanceOf(ErrorResponse::class, $response);
         $this->assertEquals('Throw exception', $response->getMessage());
+    }
+
+    public function testNotification(): void
+    {
+        $request = new Request(JsonRpc::VERSION, null, 'without_params', []);
+        $response = $this->jsonRpc->execute($request);
+        $this->assertNotInstanceOf(SuccessResponse::class, $response);
+        $this->assertNotInstanceOf(ErrorResponse::class, $response);
+        $this->assertInstanceOf(NotificationResponse::class, $response);
+        $this->assertEmpty($response->jsonSerialize());
     }
 }
