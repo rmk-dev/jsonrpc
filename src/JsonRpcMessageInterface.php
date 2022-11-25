@@ -2,8 +2,16 @@
 
 namespace Rmk\JsonRpc;
 
+/**
+ * Interface for JSON-RPC request or response
+ */
 interface JsonRpcMessageInterface
 {
 
-    public function getId();
+    /**
+     * The message identification if any
+     *
+     * @return mixed
+     */
+    public function getId(): mixed;
 }
