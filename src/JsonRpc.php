@@ -87,12 +87,20 @@ class JsonRpc
      * @param BatchRequest $batchRequest Collection with requests for execution
      *
      * @return BatchResponse Collection with responses for every request
+     *
+     * @throws JsonRpcException
      */
     public function executeBatch(BatchRequest $batchRequest): BatchResponse
     {
         $response = new BatchResponse();
         foreach ($batchRequest as $request) {
-            $response->append($this->execute($request));
+            if ($request instanceof Request) {
+                $response->append($this->execute($request));
+            } elseif ($request instanceof ErrorResponse) {
+                $response->append($request);
+            } else {
+                throw new JsonRpcException('Invalid element of batch request', JsonRpcException::INTERNAL_ERROR);
+            }
         }
 
         return $response;

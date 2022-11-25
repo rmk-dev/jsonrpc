@@ -22,25 +22,25 @@ class RequestTest extends TestCase
 
     public function testCreateFromParsedRequestBody(): void
     {
-        $body = new \stdClass();
+        $body = [];
         $request = Request::fromParsedRequestBody($body);
         $this->assertInstanceOf(ErrorResponse::class, $request);
         $this->assertEquals(JsonRpcException::INVALID_REQUEST, $request->getCode());
 
-        $body->jsonrpc = JsonRpc::VERSION;
+        $body['jsonrpc'] = JsonRpc::VERSION;
         $request = Request::fromParsedRequestBody($body);
         $this->assertInstanceOf(ErrorResponse::class, $request);
         $this->assertEquals(JsonRpcException::INVALID_REQUEST, $request->getCode());
         $this->assertEquals('No RPC method', $request->getMessage());
 
-        $body->method = 'rpcTestMethod';
+        $body['method'] = 'rpcTestMethod';
         $request = Request::fromParsedRequestBody($body);
         $this->assertInstanceOf(ErrorResponse::class, $request);
         $this->assertEquals(JsonRpcException::INVALID_REQUEST, $request->getCode());
         $this->assertEquals('Invalid request method', $request->getMessage());
 
-        $body->method = 'test_method';
-        $body->id = 1;
+        $body['method'] = 'test_method';
+        $body['id'] = 1;
         $request = Request::fromParsedRequestBody($body);
         $this->assertInstanceOf(Request::class, $request);
         $this->assertEquals(1, $request->getId());
