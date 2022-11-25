@@ -21,7 +21,7 @@ class ErrorResponse extends Response
     /**
      * @var mixed
      */
-    protected $data;
+    protected mixed $data;
 
     /**
      * @param mixed|null $id
@@ -61,7 +61,7 @@ class ErrorResponse extends Response
     /**
      * @return mixed
      */
-    public function getData()
+    public function getData(): mixed
     {
         return $this->data;
     }
