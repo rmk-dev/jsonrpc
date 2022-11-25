@@ -110,4 +110,31 @@ class JsonRpcTest extends TestCase
         $this->assertIsArray($decoded);
         $this->assertCount(4, $decoded);
     }
+
+    public function testBatchRequestWithErrors(): void
+    {
+        $requests = BatchRequest::fromParsedRequestBody([
+            ['jsonrpc' => JsonRpc::VERSION, 'method' => 'single_param', 'params' => [123]],
+            ['jsonrpc' => JsonRpc::VERSION, 'id' => 3],
+            ['jsonrpc' => JsonRpc::VERSION, 'id' => 4, 'method' => 'with_default_param', 'params' => ['a' => 'aa']],
+        ]);
+        $response = $this->jsonRpc->executeBatch($requests);
+        $this->assertCount(3, $requests);
+        $this->assertInstanceOf(NotificationResponse::class, $response->get(0));
+        $this->assertInstanceOf(ErrorResponse::class, $response->get(1));
+        $decoded = $response->jsonSerialize();
+        $this->assertIsArray($decoded);
+        $this->assertCount(2, $decoded);
+    }
+
+    public function testInvalidBatchRequest(): void
+    {
+        $requests = new BatchRequest([
+            new SuccessResponse(1, []),
+        ]);
+        $this->expectException(JsonRpcException::class);
+        $this->expectExceptionMessage('Invalid element of batch request');
+        $this->expectExceptionCode(JsonRpcException::INTERNAL_ERROR);
+        $this->jsonRpc->executeBatch($requests);
+    }
 }

@@ -99,21 +99,21 @@ class Request implements JsonRpcMessageInterface
     /**
      * Create new request object from parsed body of PSR-7 request
      *
-     * @param stdClass $body
+     * @param array $body
      *
      * @return JsonRpcMessageInterface
      */
-    public static function fromParsedRequestBody(stdClass $body): JsonRpcMessageInterface
+    public static function fromParsedRequestBody(array $body): JsonRpcMessageInterface
     {
-        $id = $body->id ?? null;
-        if (!isset($body->jsonrpc) || $body->jsonrpc !== JsonRpc::VERSION) {
+        $id = $body['id'] ?? null;
+        if (!isset($body['jsonrpc']) || $body['jsonrpc'] !== JsonRpc::VERSION) {
             $return = new ErrorResponse($id, JsonRpcException::INVALID_REQUEST, 'Invalid JSON-RPC request');
-        } elseif (!isset($body->method)) {
+        } elseif (!isset($body['method'])) {
             $return = new ErrorResponse($id, JsonRpcException::INVALID_REQUEST, 'No RPC method');
-        } elseif (str_contains($body->method, 'rpc')) {
+        } elseif (str_contains($body['method'], 'rpc')) {
             $return = new ErrorResponse($id, JsonRpcException::INVALID_REQUEST, 'Invalid request method');
         } else {
-            $return = new Request(JsonRpc::VERSION, $id, $body->method, (array) ($body->params ?? []));
+            $return = new Request(JsonRpc::VERSION, $id, $body['method'], (array) ($body['params'] ?? []));
         }
 
         return $return;
