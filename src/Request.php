@@ -4,60 +4,81 @@ namespace Rmk\JsonRpc;
 
 use stdClass;
 
+/**
+ * Request object for JSON-RPC call
+ *
+ * It contains the request details like the procedure's name, parameters,
+ * the request id, etc.
+ */
 class Request implements JsonRpcMessageInterface
 {
-
     /**
+     * JSON-RPC version
+     *
      * @var string
      */
-    protected string $jsonrpc;
+    protected string $jsonRpc;
 
     /**
+     * The request id
+     *
      * @var mixed
      */
-    protected $id;
+    protected mixed $id;
 
     /**
+     * The procedure name
+     *
      * @var string
      */
     protected string $method;
 
     /**
+     * Parameters for calling the procedure
+     *
      * @var array
      */
     protected array $params;
 
     /**
-     * @param string $jsonrpc
-     * @param mixed $id
-     * @param string $method
-     * @param stdClass|array $params
+     * Create new JSON-RPC request object
+     *
+     * @param string $jsonRpc The JSON-RPC version
+     * @param mixed  $id      The request id
+     * @param string $method  The procedure's name
+     * @param array  $params  The procedure's parameters
      */
-    public function __construct(string $jsonrpc, $id, string $method, $params)
+    public function __construct(string $jsonRpc, mixed $id, string $method, array $params)
     {
-        $this->jsonrpc = $jsonrpc;
+        $this->jsonRpc = $jsonRpc;
         $this->id = $id;
         $this->method = $method;
-        $this->params = (array) $params;
+        $this->params = $params;
     }
 
     /**
-     * @return mixed
+     * The JSON-RPC version
+     *
+     * @return string
      */
-    public function getJsonrpc()
+    public function getJsonRpc(): string
     {
-        return $this->jsonrpc;
+        return $this->jsonRpc;
     }
 
     /**
+     * The request id
+     *
      * @return mixed
      */
-    public function getId()
+    public function getId(): mixed
     {
         return $this->id;
     }
 
     /**
+     * The procedure's name
+     *
      * @return string
      */
     public function getMethod(): string
@@ -66,6 +87,8 @@ class Request implements JsonRpcMessageInterface
     }
 
     /**
+     * The procedure's parameters
+     *
      * @return array
      */
     public function getParams(): array
@@ -74,21 +97,23 @@ class Request implements JsonRpcMessageInterface
     }
 
     /**
-     * @param stdClass $body
+     * Create new request object from parsed body of PSR-7 request
+     *
+     * @param array $body
      *
      * @return JsonRpcMessageInterface
      */
-    public static function fromParsedRequestBody(stdClass $body): JsonRpcMessageInterface
+    public static function fromParsedRequestBody(array $body): JsonRpcMessageInterface
     {
-        $id = $body->id ?? null;
-        if (!isset($body->jsonrpc) || $body->jsonrpc !== JsonRpc::VERSION) {
+        $id = $body['id'] ?? null;
+        if (!isset($body['jsonrpc']) || $body['jsonrpc'] !== JsonRpc::VERSION) {
             $return = new ErrorResponse($id, JsonRpcException::INVALID_REQUEST, 'Invalid JSON-RPC request');
-        } else if (!isset($body->method)) {
+        } elseif (!isset($body['method'])) {
             $return = new ErrorResponse($id, JsonRpcException::INVALID_REQUEST, 'No RPC method');
-        } else if (strstr($body->method, 'rpc')) {
+        } elseif (str_contains($body['method'], 'rpc')) {
             $return = new ErrorResponse($id, JsonRpcException::INVALID_REQUEST, 'Invalid request method');
         } else {
-            $return = new Request(JsonRpc::VERSION, $id, $body->method, $body->params ?? []);
+            $return = new Request(JsonRpc::VERSION, $id, $body['method'], (array) ($body['params'] ?? []));
         }
 
         return $return;

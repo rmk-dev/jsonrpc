@@ -21,19 +21,19 @@ class ErrorResponse extends Response
     /**
      * @var mixed
      */
-    protected $data;
+    protected mixed $data;
 
     /**
-     * @param mixed $id
+     * @param mixed|null $id
      * @param int $code
      * @param string $message
-     * @param mixed $data
+     * @param mixed|null $data
      */
     public function __construct(
-        $id = null,
-        int $code = JsonRpcException::INTERNAL_ERROR,
+        mixed  $id = null,
+        int    $code = JsonRpcException::INTERNAL_ERROR,
         string $message = 'Internal Error',
-        $data = null
+        mixed  $data = null
     ) {
         parent::__construct($id);
         $this->code = $code;
@@ -61,7 +61,7 @@ class ErrorResponse extends Response
     /**
      * @return mixed
      */
-    public function getData()
+    public function getData(): mixed
     {
         return $this->data;
     }

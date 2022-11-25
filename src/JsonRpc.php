@@ -5,27 +5,40 @@ namespace Rmk\JsonRpc;
 use Closure;
 use ReflectionException;
 use ReflectionFunction;
+use ReflectionParameter;
 use Throwable;
 use Rmk\CallbackResolver\CallbackResolver;
 use Rmk\Collections\Collection;
 
+/**
+ * Service for execution JSON-RPC requests
+ */
 class JsonRpc
 {
+    /**
+     * The current supported version
+     */
     public const VERSION = '2.0';
 
     /**
+     * Collection of callbacks that can be remotely executed
+     *
      * @var Collection
      */
     protected Collection $callbacks;
 
     /**
+     * Resolver for the procedure
+     *
      * @var CallbackResolver
      */
     protected CallbackResolver $resolver;
 
     /**
-     * @param Collection $callbacks
-     * @param CallbackResolver $resolver
+     * Create new JSON-RPC service object
+     *
+     * @param Collection       $callbacks Collection with callbacks
+     * @param CallbackResolver $resolver  Callback resolver
      */
     public function __construct(Collection $callbacks, CallbackResolver $resolver)
     {
@@ -34,14 +47,17 @@ class JsonRpc
     }
 
     /**
-     * @param Request $request
+     * Executes the remote-called procedure with all the request parameters
      *
-     * @return Response
+     * @param Request $request The JSON-RPC request
+     *
+     * @return Response Response with the procedure result.
      */
     public function execute(Request $request): Response
     {
         $method = $request->getMethod();
         $args = $request->getParams();
+        $id = $request->getId();
         try {
             if (!$this->callbacks->has($method)) {
                 throw new JsonRpcException(
@@ -53,7 +69,11 @@ class JsonRpc
             $callback = $this->resolver->resolve($this->callbacks->get($method));
             $result = call_user_func_array($callback, $this->defineParams($callback, $args));
 
-            return new SuccessResponse($request->getId(), $result);
+            if ($id !== null) {
+                return new SuccessResponse($id, $result);
+            }
+
+            return new NotificationResponse();
         } catch (Throwable $exception) {
             $code = $exception instanceof JsonRpcException ? $exception->getCode() : JsonRpcException::INTERNAL_ERROR;
 
@@ -62,13 +82,40 @@ class JsonRpc
     }
 
     /**
-     * @param callable $callback
-     * @param array $args
+     * Execute a batch request
      *
-     * @return array
+     * @param BatchRequest $batchRequest Collection with requests for execution
+     *
+     * @return BatchResponse Collection with responses for every request
      *
      * @throws JsonRpcException
-     * @throws ReflectionException
+     */
+    public function executeBatch(BatchRequest $batchRequest): BatchResponse
+    {
+        $response = new BatchResponse();
+        foreach ($batchRequest as $request) {
+            if ($request instanceof Request) {
+                $response->append($this->execute($request));
+            } elseif ($request instanceof ErrorResponse) {
+                $response->append($request);
+            } else {
+                throw new JsonRpcException('Invalid element of batch request', JsonRpcException::INTERNAL_ERROR);
+            }
+        }
+
+        return $response;
+    }
+
+    /**
+     * Define parameters for the called procedure
+     *
+     * @param callable $callback The called procedure
+     * @param array    $args     The parameters, send with the request
+     *
+     * @return array Parameters for the callback, ordered with their names and values
+     *
+     * @throws JsonRpcException    If no value is sent and no default value present in the callback definition.
+     * @throws ReflectionException If the procedure is not a valid callback
      */
     protected function defineParams(callable $callback, array $args): array
     {
@@ -82,14 +129,16 @@ class JsonRpc
     }
 
     /**
-     * @param array $args
-     * @param \ReflectionParameter $parameter
+     * Define value for a single parameter
      *
-     * @return mixed
+     * @param array                $args     Parameters sent with the request
+     * @param ReflectionParameter $parameter Reflection object for the current parameter
      *
-     * @throws JsonRpcException
+     * @return mixed The parameter's value, extracted from the request parameters
+     *
+     * @throws JsonRpcException If no value is sent and no default value present in the callback definition.
      */
-    protected function getParam(array $args, \ReflectionParameter $parameter)
+    protected function getParam(array $args, ReflectionParameter $parameter): mixed
     {
         if (array_key_exists($parameter->getName(), $args)) {
             return $args[$parameter->getName()];

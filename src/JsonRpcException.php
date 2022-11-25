@@ -20,7 +20,7 @@ class JsonRpcException extends Exception
 
     public const INTERNAL_ERROR = -32603;
 
-    protected $id;
+    protected mixed $id;
 
     protected int $httpStatus;
 
